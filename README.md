@@ -23,5 +23,5 @@ Static files are delivered at OS level with sendfile.<hr>
 ## Installation:
 Install Gnu-C-Compiler( (gcc).You have to download the .tar.gz or .tar.xz file from the releases. Then run the configure as root. You can simply run this script:<br>
 ```bash
-apt install -y gcc && wget -O sitefactory.tar.xz https://github.com/lukastautz/siteFactory/releases/download/latest/sitefactory.tar.xz && tar -xf sitefactory.tar.xz && sudo ./configure
+sudo apt install -y gcc && wget -O sitefactory.tar.xz https://github.com/lukastautz/siteFactory/releases/download/latest/sitefactory.tar.xz && tar -xf sitefactory.tar.xz && sudo ./configure
 ```
