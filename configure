@@ -10,7 +10,7 @@ echo "# deny      for                  [domain]            [*.ext1,*.ext2,...]" 
 echo "# 404       for                  [domain]            [path]" >> /etc/sitefactory/default.conf
 echo "# index     for                  [domain]            [filename1,filename2,...]" >> /etc/sitefactory/default.conf
 echo "" >> /etc/sitefactory/default.conf
-echo "port 80" >> /etc/sitefactory/default.conf
+echo "port        80" >> /etc/sitefactory/default.conf
 echo "" >> /etc/sitefactory/default.conf
 echo "root        for                  $(hostname -I | sed 's/ *$//g')        /var/www/default" >> /etc/sitefactory/default.conf
 echo "index       for                  $(hostname -I | sed 's/ *$//g')        index.html" >> /etc/sitefactory/default.conf
