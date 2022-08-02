@@ -15,12 +15,13 @@ Static files are delivered at OS level with sendfile.<hr>
 ## FAQ:
 - Can siteFactory HTTP server used for dynamic sites like Wordpress?<br>No, siteFactory can only deliver static files.
 - Can it used for sensitive information?<br>No, because of the missing encryption.
-- How many websites can delivered from one instance of siteFactory?<br>Default 100, but it's changeable. You have to edit the size of the hostList object (line 37) and the intenger in line 274 (max sites + 1).
+- How many websites can delivered from one instance of siteFactory?<br>Default to 100, but it's changeable. You have to edit the size of the hostList object (line 37) and the intenger in line 274 (max sites + 1).
 - How many RAM is needed?<br>You need minimal ~1/3MB of RAM, but more is not bad. You can downsize it by downsizing the hostList object (line 37).
+- Does sitefactory have to be run as root?<br>Not directly, but if you want to use port 80, then yes.
 <hr>
 
 ## Installation:
-You have to download the .tar.gz or .tar.xz file at the releases. Then run the configure as root. You can simply run this script:<br>
+You have to download the .tar.gz or .tar.xz file from the releases. Then run the configure as root. You can simply run this script:<br>
 ```bash
 wget -O sitefactory.tar.xz https://github.com/lukastautz/siteFactory/releases/download/latest/sitefactory.tar.xz && tar -xf sitefactory.tar.xz && sudo ./configure
 ```
