@@ -1,5 +1,7 @@
 #!/bin/bash
-sudo cc -o /bin/sitefactory sitefactory.c
+sudo apt update
+sudo apt install -y gcc
+sudo gcc -o /bin/sitefactory sitefactory.c
 sudo mkdir /etc/sitefactory 2>/dev/null
 sudo chmod -R 777 /etc/sitefactory
 > /etc/sitefactory/default.conf
