@@ -21,7 +21,11 @@ Static files are delivered at OS level with sendfile.<hr>
 <hr>
 
 ## Installation:
-
+### Install binary (only amd64):
+Execute the following script:
+```bash
+wget -O sitefactory.tar.xz https://github.com/lukastautz/siteFactory/releases/download/amd64/sitefactory.tar.xz && tar -xf sitefactory.tar.xz && sudo ./install
+```
 ### Manual compiling:
 You have to download the .tar.gz or .tar.xz file from the releases. Then run configure as root.<br>
 ```bash
