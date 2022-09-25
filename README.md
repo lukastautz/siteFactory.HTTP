@@ -44,7 +44,7 @@ sudo gcc -static -O9 -Ofast sitefactory.c -o /bin/sitefactory
 ```
 <hr>
 
-## Command line options
+## Command line switches
 ```bash
 sitefactory [OPTIONS]
 Starts the siteFactory HTTP server
@@ -56,4 +56,43 @@ Options:
   -p     --port         Sets the port (default: 80)
   -h     --help         Prints this page
   -l     --license      Prints the license terms
+```
+## Setup a service
+Below is an example how you can setup a simple service wich starts on boot. You have to edit the /etc/init.d/sitefactory file and customize things like port, index, denied files with command line switches.
+```bash
+sudo touch /etc/init.d/sitefactory
+sudo chmod 777 /etc/init.d/sitefactory
+echo "#!/bin/bash" >> /etc/init.d/sitefactory
+echo "### BEGIN INIT INFO" >> /etc/init.d/sitefactory
+echo "# Provides:        sitefactory" >> /etc/init.d/sitefactory
+echo "# Default-Start:   2 3 4 5" >> /etc/init.d/sitefactory
+echo "# Description:     The siteFactory HTTP server" >> /etc/init.d/sitefactory
+echo "### END INIT INFO" >> /etc/init.d/sitefactory
+echo "NAME=default" >> /etc/init.d/sitefactory
+echo "PATH=/bin" >> /etc/init.d/sitefactory
+echo "start() {" >> /etc/init.d/sitefactory
+echo "    sitefactory -r /var/www > /dev/null &" >> /etc/init.d/sitefactory
+echo "}" >> /etc/init.d/sitefactory
+echo "stop() {" >> /etc/init.d/sitefactory
+echo "    kill \`pidof sitefactory\`" >> /etc/init.d/sitefactory
+echo "}" >> /etc/init.d/sitefactory
+echo "case \"\$1\" in" >> /etc/init.d/sitefactory
+echo "    start)" >> /etc/init.d/sitefactory
+echo "       start" >> /etc/init.d/sitefactory
+echo "       ;;" >> /etc/init.d/sitefactory
+echo "    stop)" >> /etc/init.d/sitefactory
+echo "       stop" >> /etc/init.d/sitefactory
+echo "       ;;" >> /etc/init.d/sitefactory
+echo "    restart)" >> /etc/init.d/sitefactory
+echo "       stop" >> /etc/init.d/sitefactory
+echo "       start" >> /etc/init.d/sitefactory
+echo "       ;;" >> /etc/init.d/sitefactory
+echo "    *)" >> /etc/init.d/sitefactory
+echo "       echo \"Usage: service sitefactory {start|stop|restart}\"" >> /etc/init.d/sitefactory
+echo "esac" >> /etc/init.d/sitefactory
+echo "exit 0" >> /etc/init.d/sitefactory
+sudo chmod 700 /etc/init.d/sitefactory
+sudo chmod +x /etc/init.d/sitefactory
+sudo update-rc.d sitefactory defaults
+sudo service sitefactory start
 ```
