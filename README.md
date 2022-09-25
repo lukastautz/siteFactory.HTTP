@@ -33,7 +33,7 @@ sudo wget https://raw.githubusercontent.com/lukastautz/siteFactory/main/binary-a
 sudo wget https://raw.githubusercontent.com/lukastautz/siteFactory/main/binary-amd64/sitefactory.cgi-bash.binary -O /bin/sitefactory && sudo chmod 777 /bin/sitefactory
 
 # PHP CGI:
-sudo wget https://raw.githubusercontent.com/lukastautz/siteFactory/main/binary-amd64/sitefactory.php-bash.binary -O /bin/sitefactory && sudo chmod 777 /bin/sitefactory
+sudo wget https://raw.githubusercontent.com/lukastautz/siteFactory/main/binary-amd64/sitefactory.cgi-php.binary -O /bin/sitefactory && sudo chmod 777 /bin/sitefactory
 ```
 ### Manual compiling:
 You have to download the .c source file manually from the folder <a href="https://github.com/lukastautz/siteFactory/tree/main/src">src/</a>.<br>Then compile
