@@ -1,5 +1,5 @@
 /*
-siteFactory HTTP server v5.4 <https://github.com/lukastautz/siteFactory>
+siteFactory HTTP server v5.6 <https://github.com/lukastautz/siteFactory>
 Copyright (C) 2022 Lukas Tautz
 
 This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@ You can use the siteFactory HTTP server for free in your projects, you can also 
 #include <sys/sendfile.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
-#define VERSION                   "siteFactory HTTP server v5.4 compiled with PHP CGI support"
+#define VERSION                   "siteFactory HTTP server v5.6 compiled with PHP CGI support"
 #define COPYRIGHT                 "Copyright (C) 2022 Lukas Tautz\nLicensed under the GNU General Public License, check out sitefactory --license"
 #define SIMULTANEOUS_CONNECTIONS  10000                // Sets the number of the maximal simultaneous connections
 #define SUPPORT_IPV6
@@ -37,8 +37,11 @@ You can use the siteFactory HTTP server for free in your projects, you can also 
 #define CGI_EXT                   "php"                // Sets the extension of the recognized CGI files
 #define CGI_BINARY                "/bin/php"           // Sets the CGI interpreter
 #define CGI_NAME                  "php"                // Sets the name of the CGI interpreter (mostly the name of the binary file)
-/* Important note:
+/*
+ Important note:
   - Add "$_SERVER['REQUEST_URI']=$argv[1];parse_str($argv[2],$_GET);" to each public PHP file! (without that, you can't use the $_GET array and the reuqest uri)
+  - You have to output first "HTTP/1.1 200 OK"
+  - Don't forget to send the Content-Type!
 */
 /* END CGI CONFIG */
 char *buf, *uri, *query;
@@ -223,7 +226,6 @@ static void notFound(int clientfd, char *uri, char *query) {
       if (strcmp(strToLower(getExt(config.error_page)), CGI_EXT) == 0) {
         dup2(clientfd, STDOUT_FILENO);
         close(clientfd);
-        write(STDOUT_FILENO, "HTTP/1.1 200 OK\n", 17);
         char *arg[5] = {CGI_NAME, config.error_page, uri, query, NULL};
         execv(CGI_BINARY, arg);
         fflush(stdout);
@@ -308,7 +310,6 @@ static void processQuery(unsigned int slot) {
         if (strcmp(strToLower(getExt(path)), CGI_EXT) == 0) {
           dup2(clientfd, STDOUT_FILENO);
           close(clientfd);
-          write(STDOUT_FILENO, "HTTP/1.1 200 OK\n", 17);
           char *arg[5] = {CGI_NAME, path, uri, query, NULL};
           execv(CGI_BINARY, arg);
           fflush(stdout);
@@ -343,7 +344,6 @@ static void processQuery(unsigned int slot) {
       if (strcmp(strToLower(getExt(path)), CGI_EXT) == 0) {
           dup2(clientfd, STDOUT_FILENO);
           close(clientfd);
-          write(STDOUT_FILENO, "HTTP/1.1 200 OK\n", 17);
           char *arg[5] = {CGI_NAME, path, uri, query, NULL};
           execv(CGI_BINARY, arg);
           fflush(stdout);
@@ -397,6 +397,7 @@ printf("\n"VERSION"\n"COPYRIGHT"\n");
     printf("siteFactory HTTP server v5.3 <\033[93mhttps://github.com/lukastautz/siteFactory\033[0m>\nCopyright (C) 2022 Lukas Tautz\n\nThis program is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nThis program is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with this program.  If not, see <\033[93mhttps://www.gnu.org/licenses/\033[0m>.\n");
     exit(0);
   }
+  // Temp variable for the error_page
   char _tmp[128];
   _tmp[0] = 0;
   for (unsigned short z = 1; z < argc; z++) {
@@ -480,7 +481,9 @@ printf("\n"VERSION"\n"COPYRIGHT"\n");
         close(listenfd);
         // Respond to the client
         processQuery(slot);
+        // Close the connection
         close(clients[slot]);
+        // Mark the slot as unused
         clients[slot] = -1;
         // Return to the main process
         exit(0);
