@@ -44,6 +44,13 @@ sudo gcc -static -O9 -Ofast sitefactory.c -o /bin/sitefactory
 ```
 <hr>
 
+## PHP CGI
+***Important***: Add this script to each php site! Otherwise you can't use the ***$_GET*** array and the ***$_SERVER['REQUEST_URI']*** variable!
+```php
+$_SERVER['REQUEST_URI']=$argv[1];parse_str($argv[2],$_GET);
+```
+<hr>
+
 ## Command line switches
 ```bash
 sitefactory [OPTIONS]
