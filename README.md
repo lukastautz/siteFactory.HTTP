@@ -87,7 +87,7 @@ echo "HTTP/1.1 200 OK\nContent-Type: text/html\n\n" . $argv[1] . '?' . $argv[2] 
 - Succeded requests: 100%
 - Average response time: 0.93s
 - Longest response time: 2.10s
-- Shortst response time: 0.32s
+- Shortest response time: 0.32s
 - Data transfered: 0.08 MB
 #### Bash CGI
 I've used the following short script:
@@ -101,7 +101,7 @@ echo $1?$2
 - Succeded requests: 100%
 - Average response time: 0.16s
 - Longest response time: 0.83s
-- Shortst response time: 0.00s
+- Shortest response time: 0.00s
 - Data transfered: 0.10 MB
 #### Static files
 I've used the following file:
@@ -121,7 +121,7 @@ I've used the following file:
 - Succeded requests: 100%
 - Average response time: 0.09s
 - Longest response time: 2.60s
-- Shortst response time: 0.00s
+- Shortest response time: 0.00s
 - Data transfered: 388.91 MB
 <hr>
 
