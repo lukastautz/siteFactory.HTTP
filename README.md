@@ -12,7 +12,8 @@ Static files are delivered at OS level with sendfile.<hr>
 <hr>
 
 ## CGI:
-CGI support isn't complete yet, siteFactory HTTP server does NOT send environment variables like HTTP_USER_AGENT, and does NOT send any POST data. It sends the request uri as argv[1], and the query string as argv[2].
+CGI support isn't complete yet, siteFactory HTTP server does NOT send environment variables like HTTP_USER_AGENT, and does NOT send any POST data. It sends the request uri as argv[1], and the query string as argv[2].<br>
+You have to output first "HTTP/1.1 200 OK"
 <hr>
 
 ## FAQ:
@@ -49,6 +50,8 @@ sudo gcc -static -O9 -Ofast sitefactory.c -o /bin/sitefactory
 ```php
 $_SERVER['REQUEST_URI']=$argv[1];parse_str($argv[2],$_GET);
 ```
+- You have to output first "HTTP/1.1 200 OK"
+- Don't forget to send the Content-Type!
 <hr>
 
 ## Command line switches
