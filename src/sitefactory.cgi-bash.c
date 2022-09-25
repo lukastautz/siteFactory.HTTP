@@ -1,5 +1,5 @@
 /*
-siteFactory HTTP server v5.3 <https://github.com/lukastautz/siteFactory>
+siteFactory HTTP server v5.4 <https://github.com/lukastautz/siteFactory>
 Copyright (C) 2022 Lukas Tautz
 
 This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@ You can use the siteFactory HTTP server for free in your projects, you can also 
 #include <sys/sendfile.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
-#define VERSION                   "siteFactory HTTP server v5.3 compiled with bash CGI support"
+#define VERSION                   "siteFactory HTTP server v5.4 compiled with bash CGI support"
 #define COPYRIGHT                 "Copyright (C) 2022 Lukas Tautz\nLicensed under the GNU General Public License, check out sitefactory --license"
 #define SIMULTANEOUS_CONNECTIONS  10000                // Sets the number of the maximal simultaneous connections
 #define SUPPORT_IPV6
@@ -224,9 +224,9 @@ static void notFound(int clientfd, char *uri, char *query) {
     if (stat(config.error_page, &notFoundBuffer) == 0 && (S_ISREG(notFoundBuffer.st_mode) || S_ISLNK(notFoundBuffer.st_mode))) {
 #ifdef SUPPORT_CGI
       if (strcmp(strToLower(getExt(config.error_page)), CGI_EXT) == 0) {
-        write(clientfd, "HTTP/1.1 200 OK\n", 17);
         dup2(clientfd, STDOUT_FILENO);
         close(clientfd);
+        write(STDOUT_FILENO, "HTTP/1.1 200 OK\n", 17);
         char *arg[5] = {CGI_NAME, config.error_page, uri, query, NULL};
         execv(CGI_BINARY, arg);
         fflush(stdout);
@@ -309,9 +309,9 @@ static void processQuery(unsigned int slot) {
       if (indexExists == 0 && hasExt(config.deny, path) == 1) {
 #ifdef SUPPORT_CGI
         if (strcmp(strToLower(getExt(path)), CGI_EXT) == 0) {
-          write(clientfd, "HTTP/1.1 200 OK\n", 17);
           dup2(clientfd, STDOUT_FILENO);
           close(clientfd);
+          write(STDOUT_FILENO, "HTTP/1.1 200 OK\n", 17);
           char *arg[5] = {CGI_NAME, path, uri, query, NULL};
           execv(CGI_BINARY, arg);
           fflush(stdout);
@@ -344,14 +344,14 @@ static void processQuery(unsigned int slot) {
     } else if (exists == 0 && hasExt(config.deny, path) == 1) {
 #ifdef SUPPORT_CGI
       if (strcmp(strToLower(getExt(path)), CGI_EXT) == 0) {
-          write(clientfd, "HTTP/1.1 200 OK\n", 17);
           dup2(clientfd, STDOUT_FILENO);
           close(clientfd);
+          write(STDOUT_FILENO, "HTTP/1.1 200 OK\n", 17);
           char *arg[5] = {CGI_NAME, path, uri, query, NULL};
           execv(CGI_BINARY, arg);
           fflush(stdout);
           shutdown(STDOUT_FILENO, SHUT_WR);
-        } else {
+      } else {
 #endif
           char statSize[256];
           snprintf(statSize, 256, "%lu", statBuffer.st_size);
