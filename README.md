@@ -1,6 +1,6 @@
 # siteFactory HTTP server
 The siteFactory HTTP server is a very fast and small HTTP/1.1 server who fits into 500 lines of code.<br>
-Because of the small size of 500 lines of C code it can only deliver unencrypted, static files.<br>
+Because of the small size of 500 lines of C code it can only deliver unencrypted, static files and simple CGI scripts.<br>
 Static files are delivered at OS level with sendfile.<hr>
 ## Features:
 - Only 500 lines of code
