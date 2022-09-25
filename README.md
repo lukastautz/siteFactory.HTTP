@@ -13,7 +13,7 @@ Static files are delivered at OS level with sendfile.<hr>
 
 ## CGI:
 CGI support isn't complete yet, siteFactory HTTP server does NOT send environment variables like HTTP_USER_AGENT, and does NOT send any POST data. It sends the request uri as argv[1], and the query string as argv[2].<br>
-You have to output first "HTTP/1.1 200 OK"
+You have to output an complete HTTP/1.1 conforming response, with ``HTTP/1.1 200 OK\nContent-Type: text/html\n\n``!
 <hr>
 
 ## FAQ:
@@ -22,6 +22,7 @@ You have to output first "HTTP/1.1 200 OK"
 - How many websites can delivered from one instance of siteFactory?<br>There is in most cases no sense for delivering multiple websites, because of there are no vhosts or similar.
 - How many RAM is needed?<br>You need minimal 2MB of RAM, but more is not bad.
 - Does siteFactory have to be run as root?<br>Not directly, but if you want to use port 80, then yes.
+- I've set up a CGI server, but there's only a text ouput/not a complete response. How can I fix it?<br>Make sure you're sending an complete HTTP/1.1 conforming response, with ``HTTP/1.1 200 OK\nContent-Type: text/html\n\n``.
 <hr>
 
 ## Installation:
@@ -50,8 +51,7 @@ sudo gcc -static -O9 -Ofast sitefactory.c -o /bin/sitefactory
 ```php
 $_SERVER['REQUEST_URI']=$argv[1];parse_str($argv[2],$_GET);
 ```
-- You have to output first "HTTP/1.1 200 OK"
-- Don't forget to send the Content-Type!
+- You have to output an complete HTTP response, with ``HTTP/1.1 200 OK\nContent-Type: text/html\n\n``!
 <hr>
 
 ## Command line switches
