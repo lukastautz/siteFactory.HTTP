@@ -75,6 +75,7 @@ Benchmarked with a virtual machine with Debian 11 (bullseye):
 - 2 vCores
 - 1024 MB RAM
 - 1 Gbit Ethernet
+- 10 minutes
 ### Results
 #### PHP CGI
 I've used the following short script:
@@ -116,12 +117,12 @@ I've used the following file:
   </body>
 </html>
 ```
-- Requests: 6770
+- Requests: 240590
 - Succeded requests: 100%
-- Average response time: 0.93s
-- Longest response time: 2.10s
-- Shortst response time: 0.32s
-- Data transfered: 0.08 MB
+- Average response time: 0.09s
+- Longest response time: 2.60s
+- Shortst response time: 0.00s
+- Data transfered: 388.91 MB
 <hr>
 
 ## Setup a service
