@@ -1,5 +1,5 @@
 /*
-siteFactory HTTP server v5.6 <https://github.com/lukastautz/siteFactory>
+siteFactory HTTP server v5.7 <https://github.com/lukastautz/siteFactory>
 Copyright (C) 2022 Lukas Tautz
 
 This program is free software: you can redistribute it and/or modify
@@ -28,10 +28,11 @@ You can use the siteFactory HTTP server for free in your projects, you can also 
 #include <sys/sendfile.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
-#define VERSION                   "siteFactory HTTP server v5.6 compiled with PHP CGI support"
+#define VERSION                   "siteFactory HTTP server v5.7 compiled with PHP CGI support"
+#define VERSION_NUMBER            "5.7"
 #define COPYRIGHT                 "Copyright (C) 2022 Lukas Tautz\nLicensed under the GNU General Public License, check out sitefactory --license"
 #define SIMULTANEOUS_CONNECTIONS  10000                // Sets the number of the maximal simultaneous connections
-#define SUPPORT_IPV6
+//#define ONLY_IPV6
 /* START CGI CONFIG */
 #define SUPPORT_CGI                                    // Enables CGI support
 #define CGI_EXT                   "php"                // Sets the extension of the recognized CGI files
@@ -218,14 +219,14 @@ static void strReplace(const char *needle, const char *replacement, char *target
     }
     strcpy(target, buffer);
 }
-static void notFound(int clientfd, char *uri, char *query) {
+static void notFound(unsigned int slot, char *uri, char *query) {
   if (strlen(config.error_page) != 0) {
     struct stat notFoundBuffer;
     if (stat(config.error_page, &notFoundBuffer) == 0 && (S_ISREG(notFoundBuffer.st_mode) || S_ISLNK(notFoundBuffer.st_mode))) {
 #ifdef SUPPORT_CGI
       if (strcmp(strToLower(getExt(config.error_page)), CGI_EXT) == 0) {
-        dup2(clientfd, STDOUT_FILENO);
-        close(clientfd);
+        dup2(clients[slot], STDOUT_FILENO);
+        close(clients[slot]);
         char *arg[5] = {CGI_NAME, config.error_page, uri, query, NULL};
         execv(CGI_BINARY, arg);
         fflush(stdout);
@@ -243,20 +244,20 @@ static void notFound(int clientfd, char *uri, char *query) {
         strcat(header, "\nContent-Length: ");
         strcat(header, statSize);
         strcat(header, "\n\n");
-        write(clientfd, header, strlen(header));
+        write(clients[slot], header, strlen(header));
         int fileInt = open(config.error_page, O_RDONLY);
         for (long pos = notFoundBuffer.st_size; pos > 0; pos = pos - 268435456) {
-          sendfile(clientfd, fileInt, 0, 268435456);
+          sendfile(clients[slot], fileInt, 0, 268435456);
         }
         close(fileInt);
 #ifdef SUPPORT_CGI
       }
 #endif
     } else {
-      write(clientfd, "HTTP/1.1 500 Internal Server Error\nContent-Type: text/html; charset=UTF-8\n\n<title>Internal Server Error</title>Internal Server Error.", 133);
+      write(clients[slot], "HTTP/1.1 500 Internal Server Error\nContent-Type: text/html; charset=UTF-8\n\n<title>Internal Server Error</title>Internal Server Error.", 133);
     }
   } else {
-    write(clientfd, "HTTP/1.1 404 Not found\nContent-Type: text/html; charset=UTF-8\n\n<title>404 - Not found</title>Not found.", 103);
+    write(clients[slot], "HTTP/1.1 404 Not found\nContent-Type: text/html; charset=UTF-8\n\n<title>404 - Not found</title>Not found.", 103);
   }
 }
 static void processQuery(unsigned int slot) {
@@ -282,7 +283,6 @@ static void processQuery(unsigned int slot) {
     if (strlen(uri) == 0) {
       uri = "/";
     }
-    int clientfd = clients[slot];
     strReplace("..", "", uri);
     uri = rmmp(uri, '/');
     strcat(path, config.root);
@@ -308,8 +308,8 @@ static void processQuery(unsigned int slot) {
       if (indexExists == 0 && hasExt(config.deny, path) == 1) {
 #ifdef SUPPORT_CGI
         if (strcmp(strToLower(getExt(path)), CGI_EXT) == 0) {
-          dup2(clientfd, STDOUT_FILENO);
-          close(clientfd);
+          dup2(clients[slot], STDOUT_FILENO);
+          close(clients[slot]);
           char *arg[5] = {CGI_NAME, path, uri, query, NULL};
           execv(CGI_BINARY, arg);
           fflush(stdout);
@@ -327,23 +327,23 @@ static void processQuery(unsigned int slot) {
           strcat(header, "\nContent-Length: ");
           strcat(header, statSize);
           strcat(header, "\n\n");
-          write(clientfd, header, strlen(header));
+          write(clients[slot], header, strlen(header));
           int fileInt = open(path, O_RDONLY);
           for (long pos = statBuffer.st_size; pos > 0; pos = pos - 268435456) {
-            sendfile(clientfd, fileInt, 0, 268435456);
+            sendfile(clients[slot], fileInt, 0, 268435456);
           }
           close(fileInt);
 #ifdef SUPPORT_CGI
         }
 #endif
       } else {
-        notFound(clientfd, uri, query);
+        notFound(slot, uri, query);
       }
     } else if (exists == 0 && hasExt(config.deny, path) == 1) {
 #ifdef SUPPORT_CGI
       if (strcmp(strToLower(getExt(path)), CGI_EXT) == 0) {
-          dup2(clientfd, STDOUT_FILENO);
-          close(clientfd);
+          dup2(clients[slot], STDOUT_FILENO);
+          close(clients[slot]);
           char *arg[5] = {CGI_NAME, path, uri, query, NULL};
           execv(CGI_BINARY, arg);
           fflush(stdout);
@@ -361,40 +361,41 @@ static void processQuery(unsigned int slot) {
           strcat(header, "\nContent-Length: ");
           strcat(header, statSize);
           strcat(header, "\n\n");
-          write(clientfd, header, strlen(header));
+          write(clients[slot], header, strlen(header));
           int fileInt = open(path, O_RDONLY);
           for (long pos = statBuffer.st_size; pos > 0; pos = pos - 268435456) {
-            sendfile(clientfd, fileInt, 0, 268435456);
+            sendfile(clients[slot], fileInt, 0, 268435456);
           }
           close(fileInt);
 #ifdef SUPPORT_CGI
       }
 #endif
     } else {
-      notFound(clientfd, uri, query);
+      notFound(slot, uri, query);
     }
-    close(clientfd);
+    close(clients[slot]);
   }
 }
 void main(unsigned short argc, char *argv[]) {
+  // main program
   if (argc == 1 || strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
     // Display help
     printf("\033[93msitefactory\033[0m [OPTIONS]\nStarts the siteFactory HTTP server\nOptions:\n  -r     --root         \033[91m[MANDATORY]\033[0m Sets the root directory\n  -i     --index        Sets the index pages, seperated with ',' (default: index.html)\n  -d     --deny         Sets the denied extensions, seperated with ',' (for example 'txt,html')\n  -e     --error-page   Sets the 404 error page\n  -p     --port         Sets the port (default: 80)\n  -h     --help         Prints this page\n  -l     --license      Prints the license terms\n");
-#ifdef SUPPORT_IPV6
-    printf("\n\033[92mIPv6\033[0m is enabled!\n");
+#ifdef ONLY_IPV6
+    printf("\n\033[92mIPv4\033[0m is disabled!\n");
 #else
-    printf("\n\033[92mIPv6\033[0m is disabled!\n");
+    printf("\n\033[92mIPv4\033[0m is enabled!\n");
 #endif
 #ifdef SUPPORT_CGI
     printf("\n\033[92mCGI\033[0m is enabled! (*."CGI_EXT" -> "CGI_BINARY")\n");
 #else
     printf("\n\033[92mCGI\033[0m is disabled!\n");
 #endif
-printf("\n"VERSION"\n"COPYRIGHT"\n");
+    printf("\n"VERSION"\n"COPYRIGHT"\n");
     exit(0);
   } else if (strcmp(argv[1], "--license") == 0 || strcmp(argv[1], "-l") == 0) {
     // Display license
-    printf("siteFactory HTTP server v5.3 <\033[93mhttps://github.com/lukastautz/siteFactory\033[0m>\nCopyright (C) 2022 Lukas Tautz\n\nThis program is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nThis program is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with this program.  If not, see <\033[93mhttps://www.gnu.org/licenses/\033[0m>.\n");
+    printf("siteFactory HTTP server v"VERSION_NUMBER" <\033[93mhttps://github.com/lukastautz/siteFactory\033[0m>\nCopyright (C) 2022 Lukas Tautz\n\nThis program is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nThis program is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with this program.  If not, see <\033[93mhttps://www.gnu.org/licenses/\033[0m>.\n");
     exit(0);
   }
   // Temp variable for the error_page
@@ -441,6 +442,15 @@ printf("\n"VERSION"\n"COPYRIGHT"\n");
     strcat(config.error_page, "/");
     strcat(config.error_page, _tmp);
   }
+#ifdef ONLY_IPV6
+  // IPv6 socket
+  listenfd = socket(AF_INET6, SOCK_STREAM, 0);
+  struct sockaddr_in addr_s;
+  addr_s.sin_family = AF_INET6;
+  addr_s.sin_port = htons(config.port);
+  addr_s.sin_addr.s_addr = inet_addr("::1");
+  bind(listenfd, (struct sockaddr*)&addr_s, sizeof(addr_s));
+#else
   // IPv4 socket
   listenfd = socket(AF_INET, SOCK_STREAM, 0);
   struct sockaddr_in addr;
@@ -448,20 +458,9 @@ printf("\n"VERSION"\n"COPYRIGHT"\n");
   addr.sin_port = htons(config.port);
   addr.sin_addr.s_addr = inet_addr("0.0.0.0");
   bind(listenfd, (struct sockaddr*)&addr, sizeof(addr));
-#if defined SUPPORT_IPV6
-  // IPv6 socket
-  struct sockaddr_in addr_s;
-  addr_s.sin_family = AF_INET6;
-  addr_s.sin_port = htons(config.port);
-  addr_s.sin_addr.s_addr = inet_addr("::1");
-  bind(listenfd, (struct sockaddr*)&addr_s, sizeof(addr_s));
 #endif
-  // Try to listen...
-  if (listen(listenfd, 100000) != 0) {
-    // Failed to listen
-    printf("Failed to bind server to port \033[92m%i\033[0m!\n", config.port);
-    exit(1);
-  }
+  // Listen to maximal 100000 connection in queue
+  listen(listenfd, 100000);
   struct sockaddr_in clientaddr;
   socklen_t addrlen;
   unsigned int slot = 0;
@@ -478,6 +477,7 @@ printf("\n"VERSION"\n"COPYRIGHT"\n");
     clients[slot] = accept(listenfd, (struct sockaddr*)&clientaddr, &addrlen);
     if (clients[slot] >= 0) {
       if (fork() == 0) {
+        // fork() succeded, we're the child
         close(listenfd);
         // Respond to the client
         processQuery(slot);
