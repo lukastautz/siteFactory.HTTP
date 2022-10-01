@@ -29,16 +29,16 @@ You have to output an complete HTTP/1.1 conforming response, with ``HTTP/1.1 200
 ### Install binary (only amd64)
 ```bash#
 # Default (without CGI)
-sudo wget https://raw.githubusercontent.com/lukastautz/siteFactory/main/binary-amd64/sitefactory.binary -O /bin/sitefactory && sudo chmod 777 /bin/sitefactory
+sudo wget https://raw.githubusercontent.com/lukastautz/siteFactory.HTTP/main/binary-amd64/sitefactory.binary -O /bin/sitefactory && sudo chmod 777 /bin/sitefactory
 
 # Bash CGI
-sudo wget https://raw.githubusercontent.com/lukastautz/siteFactory/main/binary-amd64/sitefactory.cgi-bash.binary -O /bin/sitefactory && sudo chmod 777 /bin/sitefactory
+sudo wget https://raw.githubusercontent.com/lukastautz/siteFactory.HTTP/main/binary-amd64/sitefactory.cgi-bash.binary -O /bin/sitefactory && sudo chmod 777 /bin/sitefactory
 
 # PHP CGI
-sudo wget https://raw.githubusercontent.com/lukastautz/siteFactory/main/binary-amd64/sitefactory.cgi-php.binary -O /bin/sitefactory && sudo chmod 777 /bin/sitefactory
+sudo wget https://raw.githubusercontent.com/lukastautz/siteFactory.HTTP/main/binary-amd64/sitefactory.cgi-php.binary -O /bin/sitefactory && sudo chmod 777 /bin/sitefactory
 ```
 ### Manual compiling
-You have to download the .c source file manually from the folder <a href="https://github.com/lukastautz/siteFactory/tree/main/src">src/</a>.<br>Then compile
+You have to download the .c source file manually from the folder <a href="https://github.com/lukastautz/siteFactory.HTTP/tree/main/src">src/</a>.<br>Then compile
 - to a dynamically linked executable (``sudo gcc sitefactory.c -o /bin/sitefactory``)
 - or, recommended, to a static executable who needs only the half of the RAM needed by a dynamically linked:
 ```bash
