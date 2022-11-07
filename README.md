@@ -20,7 +20,6 @@ You have to output an complete HTTP/1.1 conforming response, with ``HTTP/1.1 200
 - Can siteFactory HTTP server used for dynamic sites like Wordpress?<br>No, for none of those CMS, because of the CGI support isn't complete, those systems wouldn't support things like creating big articles or upload files.
 - Can it used for sensitive information?<br>No, because of the missing encryption via SSL.
 - How many websites can delivered from one instance of siteFactory?<br>There is in most cases no sense for delivering multiple websites, because of there are no vhosts or similar.
-- How many RAM is needed?<br>You need minimal 2MB of RAM, but more is not bad.
 - Does siteFactory have to be run as root?<br>Not directly, but if you want to use port 80, then yes.
 - I've set up a CGI server, but there's only a text ouput/not a complete response. How can I fix it?<br>Make sure you're sending an complete HTTP/1.1 conforming response, with ``HTTP/1.1 200 OK\nContent-Type: text/html\n\n``.
 <hr>
@@ -38,11 +37,12 @@ sudo wget https://raw.githubusercontent.com/lukastautz/siteFactory.HTTP/main/bin
 sudo wget https://raw.githubusercontent.com/lukastautz/siteFactory.HTTP/main/binary-amd64/sitefactory.cgi-php.binary -O /bin/sitefactory && sudo chmod 777 /bin/sitefactory
 ```
 ### Manual compiling
+*Update*: You can use diet libc for a smaller binary<br>
 You have to download the .c source file manually from the folder <a href="https://github.com/lukastautz/siteFactory.HTTP/tree/main/src">src/</a>.<br>Then compile
 - to a dynamically linked executable (``sudo gcc sitefactory.c -o /bin/sitefactory``)
 - or, recommended, to a static executable who needs only the half of the RAM needed by a dynamically linked:
 ```bash
-sudo gcc -static -O9 -Ofast sitefactory.c -o /bin/sitefactory
+sudo gcc -static -O9 -Os sitefactory.c -o /bin/sitefactory
 ```
 <hr>
 
