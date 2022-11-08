@@ -448,7 +448,7 @@ void main(unsigned short argc, char *argv[]) {
   struct sockaddr_in addr_s;
   addr_s.sin_family = AF_INET6;
   addr_s.sin_port = htons(config.port);
-  addr_s.sin_addr.s_addr = inet_addr("::1");
+  addr_s.sin_addr.s_addr = htonl(INADDR_ANY);
   bind(listenfd, (struct sockaddr*)&addr_s, sizeof(addr_s));
 #else
   // IPv4 socket
@@ -456,7 +456,7 @@ void main(unsigned short argc, char *argv[]) {
   struct sockaddr_in addr;
   addr.sin_family = AF_INET;
   addr.sin_port = htons(config.port);
-  addr.sin_addr.s_addr = inet_addr("0.0.0.0");
+  addr.sin_addr.s_addr = htonl(INADDR_ANY);
   bind(listenfd, (struct sockaddr*)&addr, sizeof(addr));
 #endif
   // Listen to maximal 100000 connection in queue
